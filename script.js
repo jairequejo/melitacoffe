@@ -1,44 +1,16 @@
 // ═══════════════════════════════════════════════════════════
-//  FOTOS DEL CARRUSEL HERO
-//  Para agregar una foto: copia el archivo a img/fotos-carrusel/
-//  y agrega su nombre aquí debajo. Admite .jpg, .png, .webp
+//  GOOGLE SHEETS — URLs CSV
+//  Menú:    CODIGO | NOMBRE | CATEGORIA | SUBCATEGORIA | PRECIO | URL | DESCUENTO | ESTADO
+//  Carrusel: URL (Google Drive) | (columna extra ignorada)
 // ═══════════════════════════════════════════════════════════
-const HERO_SLIDES = [
-  'img/foto-local.jpg',           // Foto del local (va primero)
-  'img/fotos-carrusel/c1.png',
-  'img/fotos-carrusel/c2.jpg',
-  'img/fotos-carrusel/c4.jpg',
-  'img/fotos-carrusel/c5.jpg',
-  'img/fotos-carrusel/c8.jpg',
-  'img/fotos-carrusel/c9.jpg',
-  'img/fotos-carrusel/c10.jpg',
-];
+const SHEETS_CSV_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzSpg2Btp_n--dUIHh_jdevzHmS1dd_jjDJ5AAWFrB2FkcgOypVDdC3XoQS-Sxy6GVK6eSYaIAuPDi/pub?gid=1058584065&single=true&output=csv';
+const CAROUSEL_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzSpg2Btp_n--dUIHh_jdevzHmS1dd_jjDJ5AAWFrB2FkcgOypVDdC3XoQS-Sxy6GVK6eSYaIAuPDi/pub?gid=659633114&single=true&output=csv';
 
-// ═══════════════════════════════════════════════════════════
-//  GOOGLE SHEETS — URL CSV
-//  Columnas esperadas: CODIGO | NOMBRE | CATEGORIA | SUBCATEGORIA | PRECIO | URL | DESCUENTO | ESTADO
-// ═══════════════════════════════════════════════════════════
-const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzSpg2Btp_n--dUIHh_jdevzHmS1dd_jjDJ5AAWFrB2FkcgOypVDdC3XoQS-Sxy6GVK6eSYaIAuPDi/pub?gid=1058584065&single=true&output=csv';
+// Foto del local — primera slide fija (carga inmediata, buena para SEO)
+const LOCAL_PHOTO = 'img/foto-local.jpg';
 
-
-// Paleta de colores por categoría (para gradientes de placeholder)
-const CAT_PALETTE = {
-  cafe:         '#7B3F1A',
-  bebcal:       '#4A1E05',
-  infusiones:   '#1A4A1E',
-  cafefrio:     '#1A2E5A',
-  frappes:      '#3A1A5A',
-  frozen:       '#1A3E5A',
-  jugos:        '#5A2E0A',
-  batidos:      '#5A1A3A',
-  sandwiches:   '#3A3A0A',
-  hamburguesas: '#5A0A0A',
-  waffles:      '#5A3A0A',
-  piqueos:      '#3A2A0A',
-  cocteles:     '#0A1A5A',
-  postres:      '#5A0A2A',
-  embotellados: '#0A3A3A',
-};
+// Color de fondo cuando un producto no tiene imagen
+const PLACEHOLDER_COLOR = '#3A2010';
 
 // ─────────────────────────────────────────────
 // HELPERS
@@ -67,47 +39,22 @@ function slugify(str) {
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
-// Emojis por categoría (insensible a tildes y mayúsculas)
-const CAT_EMOJI_MAP = {
-  'cafe': '☕', 'café': '☕', 'cafe caliente': '☕', 'café caliente': '☕',
-  'calientes': '🍫', 'bebidas calientes': '🍫', 'beb. calientes': '🍫',
-  'infusiones': '🌿', 'infusion': '🌿',
-  'cafe frio': '🧊', 'café frío': '🧊', 'cafe frio': '🧊',
-  'frappes': '🧋', 'frappés': '🧋', 'frappe': '🧋',
-  'frozen': '❄️', 'bebidas frozen': '❄️',
-  'jugos': '🍓', 'jugos naturales': '🍓',
-  'batidos': '🥛', 'batidos con leche': '🥛',
-  'sandwiches': '🥪', 'sándwiches': '🥪', 'sandwiches & triples': '🥪',
-  'hamburguesas': '🍔',
-  'waffles': '🧇',
-  'piqueos': '🍟', 'piqueos & acompañamientos': '🍟',
-  'cocteles': '🍹', 'cócteles': '🍹',
-  'postres': '🍰',
-  'embotellados': '🍾', 'bebidas embotelladas': '🍾', 'bebidas': '🍾',
-};
-
-function getEmoji(catName) {
-  const key = catName.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-  return CAT_EMOJI_MAP[catName.toLowerCase()] || CAT_EMOJI_MAP[key] || '🍽️';
-}
-
-// Construye el menú completo desde el CSV del Google Sheet
-// Columnas: CODIGO(0) | NOMBRE(1) | CATEGORIA(2) | SUBCATEGORIA(3) | PRECIO(4) | URL(5) | DESCUENTO(6) | ESTADO(7)
+// Construye el menú desde el CSV del Google Sheet
 function parseFullSheet(csv) {
-  const rows = csv.split('\n').slice(1)   // saltar header
+  const rows = csv.split('\n').slice(1)
     .map(l => parseCsvLine(l))
-    .filter(c => c[1]?.trim());           // solo filas con NOMBRE
+    .filter(c => c[1]?.trim());
 
-  const catMap = new Map(); // catName → Map(subcatName → items[])
+  const catMap = new Map();
 
   rows.forEach((cols, idx) => {
-    const nombre    = cols[1]?.trim() || '';
-    const catName   = cols[2]?.trim() || 'General';
-    const subcatName= cols[3]?.trim() || '';
-    const precio    = parseFloat(cols[4]) || 0;
-    const imgUrl    = toDriveDirectUrl(cols[5]?.trim() || '');
-    const desc      = parseFloat(cols[6]) || 0;
-    const estado    = (cols[7]?.trim() || 'disponible').toLowerCase();
+    const nombre     = cols[1]?.trim() || '';
+    const catName    = cols[2]?.trim() || 'General';
+    const subcatName = cols[3]?.trim() || '';
+    const precio     = parseFloat(cols[4]) || 0;
+    const imgUrl     = toDriveDirectUrl(cols[5]?.trim() || '');
+    const desc       = parseFloat(cols[6]) || 0;
+    const estado     = (cols[7]?.trim() || 'disponible').toLowerCase();
 
     if (!nombre) return;
 
@@ -134,15 +81,14 @@ function parseFullSheet(csv) {
   const categories = [];
   catMap.forEach((subMap, catName) => {
     const id = slugify(catName);
-    const emoji = getEmoji(catName);
     const namedSubcats = [...subMap.keys()].filter(k => k !== '');
 
     if (namedSubcats.length >= 1) {
       const subcats = [];
       subMap.forEach((items, label) => subcats.push({ label: label || catName, items }));
-      categories.push({ id, label: catName, emoji, sub: '', subcats });
+      categories.push({ id, label: catName, subcats });
     } else {
-      categories.push({ id, label: catName, emoji, sub: '', items: [...subMap.values()].flat() });
+      categories.push({ id, label: catName, items: [...subMap.values()].flat() });
     }
   });
 
@@ -161,6 +107,7 @@ document.addEventListener('alpine:init', () => {
   Alpine.data('melitaApp', () => ({
     categories: [],
     activeCategory: '',
+    activeSubcat: 'all',
     loading: true,
     cart: [],
     cartOpen: false,
@@ -185,22 +132,17 @@ document.addEventListener('alpine:init', () => {
     get cartTotal() {
       return this.cart.reduce((s, i) => s + i.price * i.qty, 0);
     },
-    get catColor() {
-      return CAT_PALETTE[this.activeCategory] || '#4A2A0A';
-    },
-    get itemColor() {
-      if (!this.selected) return '#4A2A0A';
-      const cat = this.categories.find(c => allItems(c).some(i => i.id === this.selected.id));
-      return CAT_PALETTE[cat?.id] || '#4A2A0A';
-    },
 
     // ── Category ─────────────────────────────
     setCategory(id) {
       this.activeCategory = id;
-      this.$nextTick(() => {
-        document.querySelector(`[data-cat="${id}"]`)
-          ?.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
-      });
+      this.activeSubcat = 'all';
+    },
+
+    get filteredSubcats() {
+      if (!this.activeData?.subcats) return [];
+      if (this.activeSubcat === 'all') return this.activeData.subcats;
+      return this.activeData.subcats.filter(s => s.label === this.activeSubcat);
     },
 
     // ── Product modal ─────────────────────────
@@ -230,7 +172,7 @@ document.addEventListener('alpine:init', () => {
     _addItem(item, qty) {
       const ex = this.cart.find(i => i.id === item.id);
       if (ex) { ex.qty += qty; }
-      else { this.cart.push({ id:item.id, name:item.name, note:item.note, price:item.price, image:item.image||null, qty }); }
+      else { this.cart.push({ id: item.id, name: item.name, note: item.note, price: item.price, image: item.image || null, qty }); }
       this.saveCart();
       this.bump = true;
       setTimeout(() => { this.bump = false; }, 600);
@@ -263,19 +205,13 @@ document.addEventListener('alpine:init', () => {
     sendWhatsApp() {
       if (!this.cart.length) return;
       const lines = [
-        '¡Hola Melita Coffe! 👋\n',
-        '🛒 *MI PEDIDO:*',
-        '━━━━━━━━━━━━━━━━━━━',
-        ...this.cart.map(i => `• ${i.qty}x *${i.name}*${i.note ? ` (${i.note})` : ''} — S/. ${(i.price * i.qty).toFixed(2)}`),
-        '━━━━━━━━━━━━━━━━━━━',
-        `💰 *Total: S/. ${this.cartTotal.toFixed(2)}*`,
-        '',
-        `📦 *Tipo:* ${this.orderType === 'delivery' ? '🛵 Delivery' : '🏠 Recoger en tienda'}`,
-        this.orderType === 'delivery' ? '📍 *Mi dirección:* (escríbela aquí)\n' : '',
-        '¡Gracias! 😊',
-      ];
-      const url = `https://wa.me/51941679505?text=${encodeURIComponent(lines.join('\n'))}`;
-      window.open(url, '_blank');
+        'Hola Melita Coffe, quiero hacer un pedido:\n',
+        ...this.cart.map(i => `- ${i.qty}x ${i.name}${i.note ? ` (${i.note})` : ''} — S/. ${(i.price * i.qty).toFixed(2)}`),
+        `\n*Total: S/. ${this.cartTotal.toFixed(2)}*`,
+        `*Tipo:* ${this.orderType === 'delivery' ? 'Delivery' : 'Recoger en tienda'}`,
+        this.orderType === 'delivery' ? '*Mi dirección:* (escríbela aquí)' : '',
+      ].filter(l => l !== '');
+      window.open(`https://wa.me/51941679505?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
     },
 
     // ── Persistencia ──────────────────────────
@@ -304,7 +240,7 @@ document.addEventListener('alpine:init', () => {
       } finally {
         this.loading = false;
       }
-    }
+    },
   }));
 });
 
@@ -312,44 +248,66 @@ document.addEventListener('alpine:init', () => {
 // CARRUSEL HERO
 // ─────────────────────────────────────────────
 let _current = 0;
+let _autoplay = null;
 
 function heroGoTo(index) {
   const slides = document.querySelectorAll('.hero-slide');
   const dots   = document.querySelectorAll('.hero-dot');
-  slides[_current].classList.remove('active');
+  if (!slides.length) return;
+  slides[_current]?.classList.remove('active');
   dots[_current]?.classList.remove('active');
-  _current = index;
-  slides[_current].classList.add('active');
+  _current = (index + slides.length) % slides.length;
+  slides[_current]?.classList.add('active');
   dots[_current]?.classList.add('active');
+}
+
+function addHeroSlide(src, carousel, dotsWrap) {
+  const i = carousel.children.length;
+  const slide = document.createElement('div');
+  slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
+  slide.style.backgroundImage = `url('${src}')`;
+  carousel.appendChild(slide);
+
+  const dot = document.createElement('button');
+  dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
+  dot.setAttribute('aria-label', `Foto ${i + 1}`);
+  dot.addEventListener('click', () => heroGoTo(i));
+  dotsWrap.appendChild(dot);
+}
+
+function startAutoplay() {
+  if (_autoplay) clearInterval(_autoplay);
+  const slides = document.querySelectorAll('.hero-slide');
+  if (slides.length > 1) {
+    _autoplay = setInterval(() => heroGoTo(_current + 1), 3500);
+  }
+}
+
+async function fetchCarouselSheets(carousel, dotsWrap) {
+  try {
+    const r = await fetch(CAROUSEL_CSV_URL);
+    if (!r.ok) return;
+    const csv = await r.text();
+    csv.split('\n').slice(1).forEach(line => {
+      const url = toDriveDirectUrl(parseCsvLine(line)[0]?.trim());
+      if (url) addHeroSlide(url, carousel, dotsWrap);
+    });
+  } catch(e) {
+    console.warn('Carrusel Sheets no disponible:', e.message);
+  } finally {
+    startAutoplay();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   const carousel = document.getElementById('hero-carousel');
   const dotsWrap = document.getElementById('hero-dots');
-
-  // Construir slides y dots desde HERO_SLIDES
-  HERO_SLIDES.forEach((src, i) => {
-    const slide = document.createElement('div');
-    slide.className = 'hero-slide' + (i === 0 ? ' active' : '');
-    slide.style.backgroundImage = `url('${src}')`;
-    carousel.appendChild(slide);
-
-    const dot = document.createElement('button');
-    dot.className = 'hero-dot' + (i === 0 ? ' active' : '');
-    dot.setAttribute('aria-label', `Foto ${i + 1}`);
-    dot.addEventListener('click', () => heroGoTo(i));
-    dotsWrap.appendChild(dot);
-  });
-
-  // Autoplay cada 3 segundos
-  if (HERO_SLIDES.length > 1) {
-    setInterval(() => heroGoTo((_current + 1) % HERO_SLIDES.length), 3000);
-  }
+  addHeroSlide(LOCAL_PHOTO, carousel, dotsWrap);
+  fetchCarouselSheets(carousel, dotsWrap);
 });
 
-// Nav transparencia
+// Nav transparencia al hacer scroll
 window.addEventListener('scroll', () => {
-  const nav = document.getElementById('app-nav');
-  if (!nav) return;
-  nav.classList.toggle('scrolled', window.scrollY > 40);
+  document.getElementById('app-nav')
+    ?.classList.toggle('scrolled', window.scrollY > 40);
 }, { passive: true });
