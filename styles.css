@@ -945,3 +945,46 @@ body {
 
   .float-cart { bottom: 32px; }
 }
+
+/* ─────────────────────────────────────────────────────────
+   BOTÓN MÚSICA DE FONDO
+────────────────────────────────────────────────────────── */
+#music-btn {
+  position: fixed;
+  bottom: 24px;
+  left: 20px;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px 10px 12px;
+  border-radius: 100px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(28, 13, 6, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #d4a97a;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  transition: background .25s, color .25s, box-shadow .25s, transform .2s;
+}
+#music-btn:hover {
+  background: rgba(200, 88, 40, 0.85);
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(200,88,40,0.35);
+  transform: translateY(-2px);
+}
+#music-btn.playing {
+  background: rgba(200, 88, 40, 0.9);
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+  animation: musicPulse 2.4s ease-in-out infinite;
+}
+@keyframes musicPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(200,88,40,0.3); }
+  50%       { box-shadow: 0 4px 32px rgba(200,88,40,0.65); }
+}
+#music-btn svg { flex-shrink: 0; }
