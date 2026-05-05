@@ -433,7 +433,7 @@
 <!-- ══════════════════════════════════════════
   MÚSICA DE FONDO
 ═══════════════════════════════════════════ -->
-<audio id="bg-music" src="Contigo.mp3" loop preload="auto"></audio>
+<audio id="bg-music" src="Contigo.mp3" loop preload="auto" autoplay></audio>
 
 <!-- Botón sutil: solo icono altavoz/silencio -->
 <button id="music-btn" aria-label="Silenciar música" title="Silenciar / activar música" onclick="toggleMute()">
@@ -460,23 +460,30 @@
   let started  = false;
   let muted    = false;
 
-  audio.volume = 0.22;
+  audio.volume = 0.12;
 
-  // Arranca la música en el primer gesto del usuario
+  // Intenta reproducir inmediatamente al cargar la página
   function tryStart() {
     if (started) return;
     audio.play().then(() => {
       started = true;
-      document.removeEventListener('click',   tryStart);
+      document.removeEventListener('click',      tryStart);
       document.removeEventListener('touchstart', tryStart);
-    }).catch(() => {});
+    }).catch(() => {
+      // Navegador bloqueó el autoplay → esperar primer gesto
+    });
   }
-  document.addEventListener('click',      tryStart, { once: false });
-  document.addEventListener('touchstart', tryStart, { once: false });
+
+  // Intento inmediato
+  tryStart();
+
+  // Fallback: primer toque/clic del usuario
+  document.addEventListener('click',      tryStart);
+  document.addEventListener('touchstart', tryStart);
 
   // Botón: solo silencia / reactiva
   window.toggleMute = function(e) {
-    e.stopPropagation(); // no dispara tryStart al mismo tiempo
+    e.stopPropagation();
     if (!started) { tryStart(); return; }
     muted = !muted;
     audio.muted = muted;
