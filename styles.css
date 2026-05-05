@@ -947,44 +947,30 @@ body {
 }
 
 /* ─────────────────────────────────────────────────────────
-   BOTÓN MÚSICA DE FONDO
+   BOTÓN MÚSICA DE FONDO (sutil)
 ────────────────────────────────────────────────────────── */
 #music-btn {
   position: fixed;
-  bottom: 24px;
-  left: 20px;
+  bottom: 22px;
+  left: 18px;
   z-index: 900;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 10px 16px 10px 12px;
-  border-radius: 100px;
-  border: 1.5px solid rgba(255,255,255,0.12);
-  background: rgba(28, 13, 6, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #d4a97a;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(212, 169, 122, 0.45);
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-  transition: background .25s, color .25s, box-shadow .25s, transform .2s;
+  transition: color .25s, opacity .25s;
+  padding: 0;
 }
 #music-btn:hover {
-  background: rgba(200, 88, 40, 0.85);
-  color: #fff;
-  box-shadow: 0 6px 24px rgba(200,88,40,0.35);
-  transform: translateY(-2px);
+  color: rgba(212, 169, 122, 0.9);
 }
-#music-btn.playing {
-  background: rgba(200, 88, 40, 0.9);
-  color: #fff;
-  border-color: rgba(255,255,255,0.2);
-  animation: musicPulse 2.4s ease-in-out infinite;
+#music-btn.muted {
+  color: rgba(255, 255, 255, 0.2);
 }
-@keyframes musicPulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(200,88,40,0.3); }
-  50%       { box-shadow: 0 4px 32px rgba(200,88,40,0.65); }
-}
-#music-btn svg { flex-shrink: 0; }
+#music-btn svg { display: block; }
