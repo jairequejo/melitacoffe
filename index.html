@@ -457,6 +457,7 @@
 
   audio.volume = 0.12;
   let playing = false;
+  let userPaused = false;
 
   function setUI(isPlaying) {
     eqBars.style.display = isPlaying ? '' : 'none';
@@ -468,29 +469,33 @@
 
   setUI(false);
 
-  function startOnce() {
-    audio.play().then(() => setUI(true)).catch(() => {});
-    document.removeEventListener('click',      startOnce);
-    document.removeEventListener('touchstart', startOnce);
-    document.removeEventListener('keydown',    startOnce);
-    document.removeEventListener('scroll',     startOnce);
-  }
-  document.addEventListener('click',      startOnce);
-  document.addEventListener('touchstart', startOnce, { passive: true });
-  document.addEventListener('keydown',    startOnce);
-  document.addEventListener('scroll',     startOnce, { passive: true });
+  // Intenta reproducir inmediatamente al cargar
+  audio.play().then(() => setUI(true)).catch(() => {
+    // Bloqueado por el navegador: espera el primer gesto del usuario
+    function startOnce() {
+      if (!userPaused) {
+        audio.play().then(() => setUI(true)).catch(() => {});
+      }
+      document.removeEventListener('click',      startOnce);
+      document.removeEventListener('touchstart', startOnce);
+      document.removeEventListener('keydown',    startOnce);
+      document.removeEventListener('scroll',     startOnce);
+    }
+    document.addEventListener('click',      startOnce);
+    document.addEventListener('touchstart', startOnce, { passive: true });
+    document.addEventListener('keydown',    startOnce);
+    document.addEventListener('scroll',     startOnce, { passive: true });
+  });
 
   btn.addEventListener('click', function(e) {
     e.stopPropagation();
-    document.removeEventListener('click',      startOnce);
-    document.removeEventListener('touchstart', startOnce);
-    document.removeEventListener('keydown',    startOnce);
-    document.removeEventListener('scroll',     startOnce);
     if (playing) {
       audio.pause();
       setUI(false);
+      userPaused = true;
     } else {
       audio.play().then(() => setUI(true)).catch(() => {});
+      userPaused = false;
     }
   });
 })();
