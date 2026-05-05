@@ -28,8 +28,12 @@ function parseCsvLine(line) {
 
 function toDriveDirectUrl(url) {
   if (!url) return null;
+  // Extraer el ID del archivo de cualquier formato de URL de Google Drive
   const m = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if (m) return `https://drive.google.com/uc?export=view&id=${m[1]}`;
+  if (m) {
+    // lh3.googleusercontent.com es el endpoint más confiable para imágenes embebidas
+    return `https://lh3.googleusercontent.com/d/${m[1]}`;
+  }
   return url;
 }
 
