@@ -149,6 +149,20 @@
     <span class="bl-main">MELITA</span>
     <span class="bl-sub">coffe</span>
   </div>
+
+  <!-- Botón música centrado en el nav -->
+  <button id="music-btn" aria-label="Música">
+    <span class="eq-bars" id="eq-bars">
+      <span></span><span></span><span></span>
+    </span>
+    <svg id="icon-mute" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <line x1="23" y1="9" x2="17" y2="15"/>
+      <line x1="17" y1="9" x2="23" y2="15"/>
+    </svg>
+    <span class="music-label" id="music-label">Música</span>
+  </button>
+
   <div class="nav-actions">
     <a href="tel:+51941679505" class="nav-phone" aria-label="Llamar">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
@@ -430,67 +444,55 @@
   <span class="float-label">Ver pedido</span>
 </button>
 
-<!-- ══════════════════════════════════════════
-  MÚSICA DE FONDO
-═══════════════════════════════════════════ -->
-<audio id="bg-music" src="Contigo.mp3" loop preload="auto" autoplay></audio>
-
-<!-- Botón sutil: solo icono altavoz/silencio -->
-<button id="music-btn" aria-label="Silenciar música" title="Silenciar / activar música" onclick="toggleMute()">
-  <!-- Altavoz activo -->
-  <svg id="icon-sound" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-  </svg>
-  <!-- Silenciado (oculto por defecto) -->
-  <svg id="icon-mute" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-    <line x1="23" y1="9" x2="17" y2="15"/>
-    <line x1="17" y1="9" x2="23" y2="15"/>
-  </svg>
-</button>
+<!-- MÚSICA DE FONDO -->
+<audio id="bg-music" src="Contigo.mp3" loop preload="auto"></audio>
 
 <script>
 (function(){
   const audio  = document.getElementById('bg-music');
   const btn    = document.getElementById('music-btn');
-  const iSound = document.getElementById('icon-sound');
+  const eqBars = document.getElementById('eq-bars');
   const iMute  = document.getElementById('icon-mute');
-  let started  = false;
-  let muted    = false;
+  const label  = document.getElementById('music-label');
 
   audio.volume = 0.12;
+  let playing = false;
 
-  // Intenta reproducir inmediatamente al cargar la página
-  function tryStart() {
-    if (started) return;
-    audio.play().then(() => {
-      started = true;
-      document.removeEventListener('click',      tryStart);
-      document.removeEventListener('touchstart', tryStart);
-    }).catch(() => {
-      // Navegador bloqueó el autoplay → esperar primer gesto
-    });
+  function setUI(isPlaying) {
+    eqBars.style.display = isPlaying ? '' : 'none';
+    iMute.style.display  = isPlaying ? 'none' : '';
+    label.textContent    = isPlaying ? 'Música' : 'Pausado';
+    btn.classList.toggle('muted', !isPlaying);
+    playing = isPlaying;
   }
 
-  // Intento inmediato
-  tryStart();
+  setUI(false);
 
-  // Fallback: primer toque/clic del usuario
-  document.addEventListener('click',      tryStart);
-  document.addEventListener('touchstart', tryStart);
+  function startOnce() {
+    audio.play().then(() => setUI(true)).catch(() => {});
+    document.removeEventListener('click',      startOnce);
+    document.removeEventListener('touchstart', startOnce);
+    document.removeEventListener('keydown',    startOnce);
+    document.removeEventListener('scroll',     startOnce);
+  }
+  document.addEventListener('click',      startOnce);
+  document.addEventListener('touchstart', startOnce, { passive: true });
+  document.addEventListener('keydown',    startOnce);
+  document.addEventListener('scroll',     startOnce, { passive: true });
 
-  // Botón: solo silencia / reactiva
-  window.toggleMute = function(e) {
+  btn.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (!started) { tryStart(); return; }
-    muted = !muted;
-    audio.muted = muted;
-    iSound.style.display = muted ? 'none' : '';
-    iMute.style.display  = muted ? ''     : 'none';
-    btn.classList.toggle('muted', muted);
-  };
+    document.removeEventListener('click',      startOnce);
+    document.removeEventListener('touchstart', startOnce);
+    document.removeEventListener('keydown',    startOnce);
+    document.removeEventListener('scroll',     startOnce);
+    if (playing) {
+      audio.pause();
+      setUI(false);
+    } else {
+      audio.play().then(() => setUI(true)).catch(() => {});
+    }
+  });
 })();
 </script>
 
