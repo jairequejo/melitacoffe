@@ -263,6 +263,8 @@ body {
 }
 
 /* ── BRAND LOGO ── */
+h1.brand-logo { margin: 0; padding: 0; font-size: inherit; font-weight: inherit; }
+h2.social-title, h3.ic2-label { font-size: inherit; font-weight: inherit; margin: 0; padding: 0; }
 .brand-logo {
   display: flex;
   flex-direction: column;
