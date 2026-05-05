@@ -897,11 +897,7 @@ h2.social-title {
 .bump::after {
   animation: cartRipple2 .7s ease-out .08s both;
 }
-.bump .cart-badge,
-.bump + .cart-badge,
-.bump svg {
-  /* se aplica desde JS con clase separada si se quiere, aquí cubre el SVG hijo */
-}
+
 .bump svg {
   animation: iconWobble .55s ease .05s both;
 }
