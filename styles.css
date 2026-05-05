@@ -839,11 +839,17 @@ body {
    ANIMACIONES
 ────────────────────────────────────────────────────────── */
 @keyframes bump {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  40%       { transform: translateX(-50%) scale(1.15); }
+  70%       { transform: translateX(-50%) scale(.97); }
+}
+@keyframes bumpNav {
   0%, 100% { transform: scale(1); }
   40%       { transform: scale(1.18); }
   70%       { transform: scale(.95); }
 }
-.bump { animation: bump .5s ease; }
+.nav-cart-btn.bump { animation: bumpNav .5s ease; }
+.float-cart.bump   { animation: bump .5s ease; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }

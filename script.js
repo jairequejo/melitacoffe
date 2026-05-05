@@ -105,6 +105,70 @@ function allItems(cat) {
 }
 
 // ─────────────────────────────────────────────
+// ANIMACIÓN: Volar al carrito flotante
+// ─────────────────────────────────────────────
+function flyToCart(originEl) {
+  // Destino: el botón flotante del carrito (abajo)
+  const floatBtn = document.querySelector('.float-cart');
+
+  const originRect = originEl.getBoundingClientRect();
+
+  // Posición de inicio (centro del botón "+")
+  const startX = originRect.left + originRect.width  / 2;
+  const startY = originRect.top  + originRect.height / 2;
+
+  // Destino: si el botón flotante existe y está visible, usarlo;
+  // de lo contrario, ir al centro inferior de la pantalla
+  let endX, endY;
+  const destRect = floatBtn ? floatBtn.getBoundingClientRect() : null;
+  if (destRect && destRect.width > 0) {
+    endX = destRect.left + destRect.width  / 2;
+    endY = destRect.top  + destRect.height / 2;
+  } else {
+    endX = window.innerWidth  / 2;
+    endY = window.innerHeight - 48;
+  }
+
+  // Crear burbuja
+  const dot = document.createElement('div');
+  dot.style.cssText = `
+    position: fixed;
+    left: ${startX}px;
+    top:  ${startY}px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--terra, #C85828);
+    box-shadow: 0 0 8px rgba(200,88,40,.6);
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%) scale(1);
+    will-change: left, top, transform, opacity;
+    transition: none;
+  `;
+  document.body.appendChild(dot);
+
+  // Forzar reflow
+  dot.getBoundingClientRect();
+
+  // Animar hacia el destino con curva suave
+  dot.style.transition = [
+    'left .6s cubic-bezier(.25,.8,.25,1)',
+    'top .6s cubic-bezier(.25,.8,.25,1)',
+    'transform .6s cubic-bezier(.25,.8,.25,1)',
+    'opacity .2s ease .45s'
+  ].join(', ');
+
+  dot.style.left      = `${endX}px`;
+  dot.style.top       = `${endY}px`;
+  dot.style.transform = 'translate(-50%, -50%) scale(0.25)';
+  dot.style.opacity   = '0';
+
+  // Eliminar al terminar
+  setTimeout(() => dot.remove(), 800);
+}
+
+// ─────────────────────────────────────────────
 // ALPINE APP
 // ─────────────────────────────────────────────
 document.addEventListener('alpine:init', () => {
@@ -166,10 +230,16 @@ document.addEventListener('alpine:init', () => {
     quickAdd(item, ev) {
       ev.stopPropagation();
       if (item.agotado) return;
+      // Animar desde el botón "+" al carrito flotante
+      const btn = ev.currentTarget;
+      flyToCart(btn);
       this._addItem(item, 1);
     },
     addSelected() {
       if (!this.selected || this.selected.agotado) return;
+      // Animar desde el botón del modal
+      const addBtn = document.querySelector('.ps-add-btn');
+      if (addBtn) flyToCart(addBtn);
       this._addItem(this.selected, this.selectedQty);
       this.closeModal();
     },
