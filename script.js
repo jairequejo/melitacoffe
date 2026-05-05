@@ -249,7 +249,17 @@ document.addEventListener('alpine:init', () => {
       else { this.cart.push({ id: item.id, name: item.name, note: item.note, price: item.price, image: item.image || null, qty }); }
       this.saveCart();
       this.bump = true;
-      setTimeout(() => { this.bump = false; }, 600);
+      // Animar badge del nav con badge-pop
+      this.$nextTick(() => {
+        const badge = document.querySelector('.nav-cart-btn .cart-badge');
+        if (badge) {
+          badge.classList.remove('badge-pop');
+          void badge.offsetWidth; // force reflow
+          badge.classList.add('badge-pop');
+          setTimeout(() => badge.classList.remove('badge-pop'), 600);
+        }
+      });
+      setTimeout(() => { this.bump = false; }, 700);
     },
     updateQty(id, delta) {
       const item = this.cart.find(i => i.id === id);

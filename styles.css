@@ -355,6 +355,18 @@ body {
   background: var(--terra); border: none;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; color: #fff;
+  overflow: visible;
+  transition: box-shadow .3s;
+}
+.nav-cart-btn::before,
+.nav-cart-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--terra);
+  opacity: 0;
+  pointer-events: none;
 }
 .cart-badge {
   position: absolute; top: -4px; right: -4px;
@@ -363,6 +375,7 @@ body {
   font-size: 10px; font-weight: 800;
   border-radius: 100px;
   display: flex; align-items: center; justify-content: center;
+  transition: transform .15s;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -838,18 +851,69 @@ body {
 /* ─────────────────────────────────────────────────────────
    ANIMACIONES
 ────────────────────────────────────────────────────────── */
-@keyframes bump {
+
+/* ── Bump premium: rebote elástico + glow + ripple ── */
+@keyframes cartBump {
+  0%   { transform: scale(1);    box-shadow: 0 0 0   0px rgba(200,88,40,0); }
+  15%  { transform: scale(1.30); box-shadow: 0 0 0   6px rgba(200,88,40,.55); }
+  35%  { transform: scale(.88);  box-shadow: 0 0 0  10px rgba(200,88,40,.25); }
+  55%  { transform: scale(1.12); box-shadow: 0 0 0  14px rgba(200,88,40,.12); }
+  75%  { transform: scale(.97);  box-shadow: 0 0 0  18px rgba(200,88,40,.05); }
+  100% { transform: scale(1);    box-shadow: 0 0 0  22px rgba(200,88,40,0); }
+}
+@keyframes cartRipple1 {
+  0%   { transform: scale(1);    opacity: .6; }
+  100% { transform: scale(2.6);  opacity: 0; }
+}
+@keyframes cartRipple2 {
+  0%   { transform: scale(1);    opacity: .35; }
+  100% { transform: scale(3.4);  opacity: 0; }
+}
+@keyframes badgePop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.55) rotate(-12deg); }
+  60%  { transform: scale(.85) rotate(6deg); }
+  80%  { transform: scale(1.1) rotate(-3deg); }
+  100% { transform: scale(1)  rotate(0deg); }
+}
+@keyframes iconWobble {
+  0%   { transform: rotate(0deg);   }
+  20%  { transform: rotate(-18deg); }
+  45%  { transform: rotate(14deg);  }
+  65%  { transform: rotate(-8deg);  }
+  82%  { transform: rotate(5deg);   }
+  100% { transform: rotate(0deg);  }
+}
+
+.bump {
+  animation: cartBump .62s cubic-bezier(.36,.07,.19,.97) both;
+}
+.bump::before {
+  animation: cartRipple1 .62s ease-out both;
+}
+.bump::after {
+  animation: cartRipple2 .7s ease-out .08s both;
+}
+.bump .cart-badge,
+.bump + .cart-badge,
+.bump svg {
+  /* se aplica desde JS con clase separada si se quiere, aquí cubre el SVG hijo */
+}
+.bump svg {
+  animation: iconWobble .55s ease .05s both;
+}
+.cart-badge.badge-pop {
+  animation: badgePop .5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes floatBump {
   0%, 100% { transform: translateX(-50%) scale(1); }
-  40%       { transform: translateX(-50%) scale(1.15); }
+  40%       { transform: translateX(-50%) scale(1.08); }
   70%       { transform: translateX(-50%) scale(.97); }
 }
-@keyframes bumpNav {
-  0%, 100% { transform: scale(1); }
-  40%       { transform: scale(1.18); }
-  70%       { transform: scale(.95); }
+.float-cart.bump {
+  animation: floatBump .5s ease;
 }
-.nav-cart-btn.bump { animation: bumpNav .5s ease; }
-.float-cart.bump   { animation: bump .5s ease; }
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(12px); }
