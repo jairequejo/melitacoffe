@@ -509,23 +509,26 @@
 
   setUI(false);
 
-  // Intenta reproducir inmediatamente al cargar
-  audio.play().then(() => setUI(true)).catch(() => {
-    // Bloqueado por el navegador: espera el primer gesto del usuario
-    function startOnce() {
-      if (!userPaused) {
-        audio.play().then(() => setUI(true)).catch(() => {});
-      }
-      document.removeEventListener('click',      startOnce);
-      document.removeEventListener('touchstart', startOnce);
-      document.removeEventListener('keydown',    startOnce);
-      document.removeEventListener('scroll',     startOnce);
+  function startMusic() {
+    if (!playing && !userPaused) {
+      audio.play().then(() => setUI(true)).catch(() => {});
     }
-    document.addEventListener('click',      startOnce);
-    document.addEventListener('touchstart', startOnce, { passive: true });
-    document.addEventListener('keydown',    startOnce);
-    document.addEventListener('scroll',     startOnce, { passive: true });
-  });
+  }
+
+  // Iniciar la música al hacer clic en "Ver Menú"
+  const verMenuBtn = document.querySelector('.hero-cta');
+  if (verMenuBtn) {
+    verMenuBtn.addEventListener('click', startMusic);
+  }
+
+  // Fallback: Si el usuario interactúa en otra parte de la app, también la iniciamos
+  function startOnce() {
+    startMusic();
+    document.removeEventListener('click', startOnce);
+    document.removeEventListener('touchstart', startOnce);
+  }
+  document.addEventListener('click', startOnce);
+  document.addEventListener('touchstart', startOnce, { passive: true });
 
   btn.addEventListener('click', function(e) {
     e.stopPropagation();
