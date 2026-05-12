@@ -318,8 +318,7 @@
     <!-- Botón instalar PWA (solo aparece cuando es instalable) -->
     <button id="pwa-nav-install-btn"
             class="nav-pwa-btn"
-            aria-label="Instalar aplicación"
-            style="display:none">
+            aria-label="Instalar aplicación">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
         <polyline points="7 10 12 15 17 10"/>
@@ -819,8 +818,7 @@
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js')
-      .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
-      .catch(err => console.warn('[PWA] SW error:', err));
+      .catch(() => {});
   });
 }
 
@@ -837,9 +835,6 @@ if ('serviceWorker' in navigator) {
 
   // Ya instalada → nunca mostrar
   if (localStorage.getItem('pwa-installed')) return;
-  // Cerró el panel recientemente → esperar 3 días
-  const snoozed = localStorage.getItem('pwa-snoozed');
-  if (snoozed && Date.now() < Number(snoozed)) return;
 
   function showSheet() {
     sheet.classList.add('visible');
@@ -857,7 +852,6 @@ if ('serviceWorker' in navigator) {
     if (navBtn) navBtn.classList.remove('show');
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
-    console.log('[PWA] Instalación:', outcome);
     deferredPrompt = null;
     if (outcome === 'accepted') {
       localStorage.setItem('pwa-installed', '1');
@@ -870,8 +864,7 @@ if ('serviceWorker' in navigator) {
     deferredPrompt = e;
     // Mostrar botón del nav de inmediato
     if (navBtn) navBtn.classList.add('show');
-    // Mostrar el sheet después de 3 s (primera visita)
-    setTimeout(showSheet, 3000);
+    setTimeout(showSheet, 1500);
   });
 
   /* Botón grande del sheet */
@@ -879,20 +872,13 @@ if ('serviceWorker' in navigator) {
 
   /* Botón pequeño del nav */
   if (navBtn) navBtn.addEventListener('click', function() {
-    if (deferredPrompt) {
-      triggerInstall();
-    } else {
-      // Si ya no hay prompt (puede que ya esté instalada)
-      showSheet();
-    }
+    if (deferredPrompt) triggerInstall();
   });
 
-  /* Cerrar sheet → snooze 3 días */
+  /* Cerrar sheet → solo ocultar esta sesión */
   dismissBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     hideSheet();
-    localStorage.setItem('pwa-snoozed', Date.now() + 3 * 24 * 60 * 60 * 1000);
-    if (navBtn) navBtn.classList.remove('show');
   });
 
   /* App instalada correctamente */
@@ -901,7 +887,6 @@ if ('serviceWorker' in navigator) {
     deferredPrompt = null;
     if (navBtn) navBtn.classList.remove('show');
     localStorage.setItem('pwa-installed', '1');
-    console.log('[PWA] App instalada correctamente ✅');
   });
 })();
 </script>
