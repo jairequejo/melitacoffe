@@ -1,0 +1,56 @@
+{
+  "name": "Melita Coffe",
+  "short_name": "Melita Coffe",
+  "description": "La mejor cafetería de Bambamarca, Cajamarca. Bebidas artesanales, postres y delivery.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1C0D06",
+  "theme_color": "#1C0D06",
+  "lang": "es-PE",
+  "categories": ["food", "shopping"],
+  "icons": [
+    { "src": "assets/img/icons/icon-72.png",  "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/icons/icon-96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/icons/icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/icons/icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/icons/icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/icons/icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
+    { "src": "assets/img/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/img/foto-local.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "label": "Melita Coffe — Cafetería en Bambamarca"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ver Menú",
+      "short_name": "Menú",
+      "description": "Explora nuestras bebidas, postres y snacks",
+      "url": "/#menu",
+      "icons": [{ "src": "assets/img/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Pedir por WhatsApp",
+      "short_name": "Pedir",
+      "description": "Haz tu pedido delivery por WhatsApp",
+      "url": "https://wa.me/51941679505?text=%C2%A1Hola%20Melita%20Coffe!%20Quiero%20hacer%20un%20pedido",
+      "icons": [{ "src": "assets/img/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Llamar",
+      "short_name": "Llamar",
+      "description": "Llama directamente al local",
+      "url": "tel:+51941679505",
+      "icons": [{ "src": "assets/img/icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

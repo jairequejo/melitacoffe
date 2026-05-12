@@ -7,7 +7,7 @@ const SHEETS_CSV_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzSpg
 const CAROUSEL_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTzSpg2Btp_n--dUIHh_jdevzHmS1dd_jjDJ5AAWFrB2FkcgOypVDdC3XoQS-Sxy6GVK6eSYaIAuPDi/pub?gid=659633114&single=true&output=csv';
 
 // Foto del local — primera slide fija (carga inmediata, buena para SEO)
-const LOCAL_PHOTO = 'img/foto-local.jpg';
+const LOCAL_PHOTO = 'assets/img/foto-local.jpg';
 
 // Color de fondo cuando un producto no tiene imagen
 const PLACEHOLDER_COLOR = '#3A2010';
