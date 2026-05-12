@@ -286,10 +286,12 @@ document.addEventListener('alpine:init', () => {
     openCart() {
       this.cartOpen = true;
       document.body.style.overflow = 'hidden';
+      window._pwaShow?.();
     },
     closeCart() {
       this.cartOpen = false;
       document.body.style.overflow = '';
+      window._pwaHide?.();
     },
     closeAll() {
       this.closeModal();

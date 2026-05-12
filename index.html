@@ -680,29 +680,17 @@
     <button class="pending-bar__dismiss" @click="dismissPending()" aria-label="Descartar">✕</button>
   </div>
 
+  <!-- NOTIFICACIÓN PWA -->
+  <div id="pwa-notify">
+    <img src="assets/img/icons/icon-96.png" alt="" width="28" height="28">
+    <span>Instala el app de Melita Coffe</span>
+    <button id="pwa-notify-install">Instalar</button>
+    <button id="pwa-notify-close" aria-label="Cerrar">✕</button>
+  </div>
+
   <!-- ══════════════════════════════════════════
   PWA: Bottom-sheet de instalación
 ═══════════════════════════════════════════ -->
-  <div id="pwa-install-banner" role="dialog" aria-modal="true" aria-label="Instalar Melita Coffe">
-    <div class="pwa-drag-bar"></div>
-    <div class="pwa-sheet-body">
-      <div class="pwa-app-info">
-        <img src="assets/img/icons/icon-96.png" alt="Melita Coffe" class="pwa-app-icon">
-        <div class="pwa-app-meta">
-          <strong>Instala Melita Coffe</strong>
-          <span>Con el aplicativo disfrutarás de un mejor servicio</span>
-        </div>
-        <button id="pwa-dismiss-btn" aria-label="Cerrar">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-      <button id="pwa-install-btn">Instalar gratis</button>
-    </div>
-  </div>
 
   <script>
     (function () {
@@ -789,118 +777,57 @@
       opacity: .7;
     }
 
-    /* ─── Bottom-sheet PWA ─── */
-    #pwa-install-banner {
+    /* ─── Notificación PWA ─── */
+    #pwa-notify {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 500;
-      background: #180C05;
-      border-radius: 18px 18px 0 0;
-      border-top: 1px solid rgba(200, 146, 74, .15);
-      box-shadow: 0 -8px 40px rgba(0, 0, 0, .6);
-      transform: translateY(100%);
-      opacity: 0;
-      pointer-events: none;
-      transition: transform .35s cubic-bezier(.4, 0, .2, 1), opacity .3s ease;
-    }
-
-    #pwa-install-banner.visible {
-      transform: translateY(0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .float-cart.pwa-offset {
-      bottom: 170px !important;
-      transition: bottom .35s cubic-bezier(.4, 0, .2, 1);
-    }
-
-    .pwa-drag-bar {
-      width: 32px;
-      height: 3px;
-      background: rgba(255, 255, 255, .12);
-      border-radius: 2px;
-      margin: 10px auto 0;
-    }
-
-    .pwa-sheet-body {
-      padding: 14px 18px 28px;
-    }
-
-    .pwa-app-info {
+      top: -80px;
+      left: 12px; right: 12px;
+      z-index: 600;
+      background: #1C0D06;
+      border: 1px solid rgba(200,146,74,.2);
+      border-radius: 14px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
+      gap: 10px;
+      padding: 10px 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.4);
+      transition: top .35s cubic-bezier(.4,0,.2,1);
     }
-
-    .pwa-app-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 11px;
-      object-fit: cover;
+    #pwa-notify.show { top: 12px; }
+    #pwa-notify img {
+      border-radius: 7px;
       flex-shrink: 0;
     }
-
-    .pwa-app-meta {
+    #pwa-notify span {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .pwa-app-meta strong {
-      font-size: .92rem;
-      font-weight: 700;
+      font-size: .8rem;
+      font-weight: 600;
       color: #F5ECD5;
+      line-height: 1.3;
     }
-
-    .pwa-app-meta span {
-      font-size: .73rem;
-      color: rgba(245, 236, 213, .4);
-    }
-
-    #pwa-dismiss-btn {
-      background: transparent;
-      border: none;
-      color: rgba(245, 236, 213, .3);
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: color .2s;
-      touch-action: manipulation;
-    }
-
-    #pwa-dismiss-btn:hover {
-      color: rgba(245, 236, 213, .7);
-    }
-
-    #pwa-install-btn {
-      width: 100%;
+    #pwa-notify-install {
       background: #C8924A;
       color: #1C0D06;
       border: none;
-      border-radius: 10px;
-      padding: 13px;
+      border-radius: 8px;
+      padding: 7px 13px;
       font-family: inherit;
-      font-size: .92rem;
+      font-size: .78rem;
       font-weight: 700;
       cursor: pointer;
-      transition: opacity .15s, transform .15s;
+      white-space: nowrap;
+      flex-shrink: 0;
       touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent;
     }
-
-    #pwa-install-btn:active {
-      opacity: .85;
-      transform: scale(.98);
+    #pwa-notify-close {
+      background: transparent;
+      border: none;
+      color: rgba(245,236,213,.35);
+      font-size: .9rem;
+      cursor: pointer;
+      padding: 4px;
+      flex-shrink: 0;
+      line-height: 1;
     }
   </style>
 
@@ -914,84 +841,44 @@
       });
     }
 
-    /* ─── Banner de instalación ─── */
+    /* ─── Notificación PWA ─── */
     (function () {
-      let deferredPrompt = null;
-      const sheet = document.getElementById('pwa-install-banner');
-      const installBtn = document.getElementById('pwa-install-btn');
-      const dismissBtn = document.getElementById('pwa-dismiss-btn');
-      const navBtn = document.getElementById('pwa-nav-install-btn');
-      const floatCart = document.querySelector('.float-cart');
-
-      if (!sheet || !installBtn || !dismissBtn) return;
-
-      // Ya instalada → nunca mostrar
       if (localStorage.getItem('pwa-installed')) return;
-      // Cerró el panel recientemente → esperar 3 días
-      const snoozed = localStorage.getItem('pwa-snoozed');
-      if (snoozed && Date.now() < Number(snoozed)) return;
 
-      function showSheet() {
-        sheet.classList.add('visible');
-        if (floatCart) floatCart.classList.add('pwa-offset');
-      }
+      const notify  = document.getElementById('pwa-notify');
+      const btnInst = document.getElementById('pwa-notify-install');
+      const btnClose= document.getElementById('pwa-notify-close');
+      let deferredPrompt = null;
 
-      function hideSheet() {
-        sheet.classList.remove('visible');
-        if (floatCart) floatCart.classList.remove('pwa-offset');
-      }
+      window._pwaShow = function () {
+        if (deferredPrompt && notify) notify.classList.add('show');
+      };
+      window._pwaHide = function () {
+        if (notify) notify.classList.remove('show');
+      };
 
-      async function triggerInstall() {
-        if (!deferredPrompt) return;
-        hideSheet();
-        if (navBtn) navBtn.classList.remove('show');
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log('[PWA] Instalación:', outcome);
-        deferredPrompt = null;
-        if (outcome === 'accepted') {
-          localStorage.setItem('pwa-installed', '1');
-        }
-      }
-
-      /* Capturar el evento de instalación */
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredPrompt = e;
-        // Mostrar botón del nav de inmediato
-        if (navBtn) navBtn.classList.add('show');
-        // Mostrar el sheet después de 3 s (primera visita)
-        setTimeout(showSheet, 3000);
       });
 
-      /* Botón grande del sheet */
-      installBtn.addEventListener('click', triggerInstall);
-
-      /* Botón pequeño del nav */
-      if (navBtn) navBtn.addEventListener('click', function () {
-        if (deferredPrompt) {
-          triggerInstall();
-        } else {
-          // Si ya no hay prompt (puede que ya esté instalada)
-          showSheet();
-        }
-      });
-
-      /* Cerrar sheet → snooze 3 días */
-      dismissBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        hideSheet();
-        localStorage.setItem('pwa-snoozed', Date.now() + 3 * 24 * 60 * 60 * 1000);
-        if (navBtn) navBtn.classList.remove('show');
-      });
-
-      /* App instalada correctamente */
-      window.addEventListener('appinstalled', function () {
-        hideSheet();
+      btnInst.addEventListener('click', async function () {
+        if (!deferredPrompt) return;
+        window._pwaHide();
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
         deferredPrompt = null;
-        if (navBtn) navBtn.classList.remove('show');
+        if (outcome === 'accepted') localStorage.setItem('pwa-installed', '1');
+      });
+
+      btnClose.addEventListener('click', function () {
+        window._pwaHide();
+      });
+
+      window.addEventListener('appinstalled', function () {
+        window._pwaHide();
+        deferredPrompt = null;
         localStorage.setItem('pwa-installed', '1');
-        console.log('[PWA] App instalada correctamente ✅');
       });
     })();
   </script>
