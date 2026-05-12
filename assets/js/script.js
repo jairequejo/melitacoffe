@@ -184,10 +184,21 @@ document.addEventListener('alpine:init', () => {
     selectedQty: 1,
     orderType: 'delivery',
     bump: false,
+    toast: null,
+    pendingWaUrl: null,
 
     init() {
       this.loadCart();
       if (SHEETS_CSV_URL) this.fetchSheets();
+      const saved = localStorage.getItem('melita_pending_wa');
+      if (saved && navigator.onLine) this.pendingWaUrl = saved;
+      window.addEventListener('online', () => {
+        const pending = localStorage.getItem('melita_pending_wa');
+        if (pending) {
+          this.pendingWaUrl = pending;
+          this.showToast('¡Volviste a tener internet! Tienes un pedido guardado listo para enviar.', 6000);
+        }
+      });
     },
 
     // ── Getters ──────────────────────────────
@@ -295,7 +306,31 @@ document.addEventListener('alpine:init', () => {
         `*Tipo:* ${this.orderType === 'delivery' ? 'Delivery' : 'Recoger en tienda'}`,
         this.orderType === 'delivery' ? '*Mi dirección:* (escríbela aquí)' : '',
       ].filter(l => l !== '');
-      window.open(`https://wa.me/51941679505?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
+      const url = `https://wa.me/51941679505?text=${encodeURIComponent(lines.join('\n'))}`;
+      if (!navigator.onLine) {
+        localStorage.setItem('melita_pending_wa', url);
+        this.pendingWaUrl = url;
+        this.showToast('Sin internet 📵 Tu pedido quedó guardado. Te avisamos cuando vuelva la conexión.', 5000);
+        return;
+      }
+      localStorage.removeItem('melita_pending_wa');
+      this.pendingWaUrl = null;
+      window.open(url, '_blank');
+    },
+    sendPendingOrder() {
+      if (!this.pendingWaUrl) return;
+      window.open(this.pendingWaUrl, '_blank');
+      localStorage.removeItem('melita_pending_wa');
+      this.pendingWaUrl = null;
+    },
+    dismissPending() {
+      localStorage.removeItem('melita_pending_wa');
+      this.pendingWaUrl = null;
+    },
+    showToast(msg, duration = 4000) {
+      this.toast = msg;
+      clearTimeout(this._toastTimer);
+      this._toastTimer = setTimeout(() => { this.toast = null; }, duration);
     },
 
     // ── Persistencia ──────────────────────────

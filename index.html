@@ -606,6 +606,16 @@
 <!-- MÚSICA DE FONDO -->
 <audio id="bg-music" src="assets/audio/Contigo.mp3" loop preload="auto"></audio>
 
+<!-- TOAST -->
+<div class="toast" x-show="toast" x-transition.opacity x-text="toast"></div>
+
+<!-- BANNER PEDIDO PENDIENTE -->
+<div class="pending-bar" x-show="pendingWaUrl" x-transition>
+  <span>📦 Pedido guardado</span>
+  <button class="pending-bar__send" @click="sendPendingOrder()">Enviar por WhatsApp</button>
+  <button class="pending-bar__dismiss" @click="dismissPending()" aria-label="Descartar">✕</button>
+</div>
+
 <!-- ══════════════════════════════════════════
   PWA: Bottom-sheet de instalación
 ═══════════════════════════════════════════ -->
