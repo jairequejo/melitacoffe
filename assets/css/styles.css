@@ -928,19 +928,24 @@ h2.social-title {
 @media (min-width: 768px) {
   .panel-area { padding: 32px 40px 100px; }
 
-  /* Bottom sheets → centered modal on desktop */
+  /* Bottom sheets → modal centrado en desktop */
   .product-sheet, .cart-sheet {
     left: 50%; right: auto;
-    width: 480px;
-    border-radius: 24px;
-    transform: translateX(-50%) translateY(100%);
-    bottom: 0;
+    top: 50%; bottom: auto;
+    width: 460px;
+    max-height: 85vh;
+    border-radius: 20px !important;
+    overflow: hidden;
+    transform: translate(-50%, -50%) scale(.94);
+    opacity: 0;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
   }
   .product-sheet.open, .cart-sheet.open {
-    transform: translateX(-50%) translateY(0);
-    bottom: 40px;
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
   }
-  .ps-media { height: 280px; border-radius: 24px 24px 0 0; }
+  .ps-media { height: 260px; border-radius: 20px 20px 0 0; }
+  .cart-sheet { max-height: 82vh; }
 
   .float-cart { bottom: 32px; }
 }
