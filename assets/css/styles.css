@@ -938,11 +938,13 @@ h2.social-title {
     overflow: hidden;
     transform: translate(-50%, -50%) scale(.94);
     opacity: 0;
+    pointer-events: none;
     transition: transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
   }
   .product-sheet.open, .cart-sheet.open {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
+    pointer-events: auto;
   }
   .ps-media { height: 260px; border-radius: 20px 20px 0 0; }
   .cart-sheet { max-height: 82vh; }
