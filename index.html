@@ -835,8 +835,11 @@ if ('serviceWorker' in navigator) {
 
   if (!sheet || !installBtn || !dismissBtn) return;
 
-  // No mostrar si ya fue descartado
-  if (localStorage.getItem('pwa-dismissed')) return;
+  // Ya instalada → nunca mostrar
+  if (localStorage.getItem('pwa-installed')) return;
+  // Cerró el panel recientemente → esperar 3 días
+  const snoozed = localStorage.getItem('pwa-snoozed');
+  if (snoozed && Date.now() < Number(snoozed)) return;
 
   function showSheet() {
     sheet.classList.add('visible');
@@ -857,7 +860,7 @@ if ('serviceWorker' in navigator) {
     console.log('[PWA] Instalación:', outcome);
     deferredPrompt = null;
     if (outcome === 'accepted') {
-      localStorage.setItem('pwa-dismissed', '1');
+      localStorage.setItem('pwa-installed', '1');
     }
   }
 
@@ -884,11 +887,11 @@ if ('serviceWorker' in navigator) {
     }
   });
 
-  /* Cerrar sheet */
+  /* Cerrar sheet → snooze 3 días */
   dismissBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     hideSheet();
-    localStorage.setItem('pwa-dismissed', '1');
+    localStorage.setItem('pwa-snoozed', Date.now() + 3 * 24 * 60 * 60 * 1000);
     if (navBtn) navBtn.classList.remove('show');
   });
 
@@ -897,7 +900,7 @@ if ('serviceWorker' in navigator) {
     hideSheet();
     deferredPrompt = null;
     if (navBtn) navBtn.classList.remove('show');
-    localStorage.setItem('pwa-dismissed', '1');
+    localStorage.setItem('pwa-installed', '1');
     console.log('[PWA] App instalada correctamente ✅');
   });
 })();
