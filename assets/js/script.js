@@ -131,15 +131,16 @@ function flyToCart(originEl) {
 
   // Crear burbuja
   const dot = document.createElement('div');
+  dot.className = 'fly-dot';
   dot.style.cssText = `
     position: fixed;
     left: ${startX}px;
     top:  ${startY}px;
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: var(--terra, #C85828);
-    box-shadow: 0 0 8px rgba(200,88,40,.6);
+    background: #C85828;
+    box-shadow: 0 0 12px rgba(200,88,40,.8), 0 0 24px rgba(200,88,40,.4);
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%) scale(1);
@@ -259,18 +260,19 @@ document.addEventListener('alpine:init', () => {
       if (ex) { ex.qty += qty; }
       else { this.cart.push({ id: item.id, name: item.name, note: item.note, price: item.price, image: item.image || null, qty }); }
       this.saveCart();
-      this.bump = true;
-      // Animar badge del nav con badge-pop
+      // Esperar a que Alpine muestre el botón antes de animar
       this.$nextTick(() => {
+        this.bump = true;
+        cartBgPulse();
         const badge = document.querySelector('.nav-cart-btn .cart-badge');
         if (badge) {
           badge.classList.remove('badge-pop');
-          void badge.offsetWidth; // force reflow
+          void badge.offsetWidth;
           badge.classList.add('badge-pop');
           setTimeout(() => badge.classList.remove('badge-pop'), 600);
         }
+        setTimeout(() => { this.bump = false; }, 750);
       });
-      setTimeout(() => { this.bump = false; }, 700);
     },
     updateQty(id, delta) {
       const item = this.cart.find(i => i.id === id);
@@ -404,15 +406,26 @@ function startAutoplay() {
   }
 }
 
+function testImage(url) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const t = setTimeout(() => { img.onload = img.onerror = null; resolve(null); }, 5000);
+    img.onload  = () => { clearTimeout(t); resolve(url); };
+    img.onerror = () => { clearTimeout(t); resolve(null); };
+    img.src = url;
+  });
+}
+
 async function fetchCarouselSheets(carousel, dotsWrap) {
   try {
     const r = await fetch(CAROUSEL_CSV_URL);
     if (!r.ok) return;
     const csv = await r.text();
-    csv.split('\n').slice(1).forEach(line => {
-      const url = toDriveDirectUrl(parseCsvLine(line)[0]?.trim());
-      if (url) addHeroSlide(url, carousel, dotsWrap);
-    });
+    const urls = csv.split('\n').slice(1)
+      .map(line => toDriveDirectUrl(parseCsvLine(line)[0]?.trim()))
+      .filter(Boolean);
+    const loaded = await Promise.all(urls.map(testImage));
+    loaded.filter(Boolean).forEach(url => addHeroSlide(url, carousel, dotsWrap));
   } catch(e) {
     console.warn('Carrusel Sheets no disponible:', e.message);
   } finally {
@@ -420,11 +433,112 @@ async function fetchCarouselSheets(carousel, dotsWrap) {
   }
 }
 
+// ─────────────────────────────────────────────
+// SHOCKWAVE DE FONDO AL AGREGAR AL CARRITO
+// ─────────────────────────────────────────────
+function cartBgPulse() {
+  const btn = document.querySelector('.nav-cart-btn') || document.querySelector('.float-cart');
+  if (!btn) return;
+  const r = btn.getBoundingClientRect();
+  const cx = r.left + r.width  / 2;
+  const cy = r.top  + r.height / 2;
+
+  [0, 200, 400].forEach((delay, i) => {
+    const ring = document.createElement('div');
+    ring.className = 'cart-shockwave';
+    ring.style.cssText = `left:${cx}px;top:${cy}px;animation-delay:${delay}ms;border-width:${2 - i * 0.4}px;border-color:rgba(200,88,40,${0.6 - i * 0.15});`;
+    document.body.appendChild(ring);
+    setTimeout(() => ring.remove(), 1200 + delay);
+  });
+}
+
+// ─────────────────────────────────────────────
+// MARCA DE AGUA DEL MENÚ (Canvas con fuentes reales)
+// ─────────────────────────────────────────────
+async function createMenuWatermark() {
+  try { await document.fonts.ready; } catch(e) {}
+
+  const W = 420, H = 210;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const c = cv.getContext('2d');
+  if (!c) return null;
+
+  c.translate(W / 2, H / 2);
+  c.rotate(-22 * Math.PI / 180);
+
+  const clr = 'rgba(200,88,40,';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+
+  // "MELITA" — Plus Jakarta Sans 800
+  c.font = '800 22px "Plus Jakarta Sans", sans-serif';
+  c.fillStyle = clr + '0.09)';
+  try { c.letterSpacing = '8px'; } catch(e) {}
+  c.fillText('MELITA', 0, -14);
+
+  // "coffe" — Playfair Display italic
+  c.font = 'italic 700 14px "Playfair Display", serif';
+  c.fillStyle = clr + '0.06)';
+  try { c.letterSpacing = '4px'; } catch(e) {}
+  c.fillText('coffe', 0, 7);
+
+  // Iconos line-art
+  c.strokeStyle = clr + '0.08)';
+  c.lineWidth = 1.6;
+  c.lineCap = 'round';
+  c.lineJoin = 'round';
+
+  // Taza de café (izquierda)
+  const cup = (cx, cy) => {
+    // cuerpo
+    c.beginPath(); c.moveTo(cx-13,cy-10); c.lineTo(cx-10,cy+5);
+    c.lineTo(cx+10,cy+5); c.lineTo(cx+13,cy-10); c.stroke();
+    // asa
+    c.beginPath(); c.moveTo(cx+10,cy-5);
+    c.quadraticCurveTo(cx+19,cy-5,cx+19,cy);
+    c.quadraticCurveTo(cx+19,cy+5,cx+10,cy+5); c.stroke();
+    // platillo
+    c.beginPath(); c.moveTo(cx-14,cy+7); c.lineTo(cx+14,cy+7); c.stroke();
+    // vapor ×2
+    c.beginPath(); c.moveTo(cx-4,cy-14); c.quadraticCurveTo(cx-6,cy-19,cx-4,cy-24); c.stroke();
+    c.beginPath(); c.moveTo(cx+3,cy-14); c.quadraticCurveTo(cx+5,cy-19,cx+3,cy-24); c.stroke();
+  };
+
+  // Frappé / batido (derecha)
+  const shake = (cx, cy) => {
+    // vaso
+    c.beginPath(); c.moveTo(cx-9,cy-12); c.lineTo(cx-7,cy+10);
+    c.lineTo(cx+7,cy+10); c.lineTo(cx+9,cy-12); c.stroke();
+    // borde superior
+    c.beginPath(); c.moveTo(cx-10,cy-12); c.lineTo(cx+10,cy-12); c.stroke();
+    // crema (arco)
+    c.beginPath(); c.arc(cx, cy-13, 8, Math.PI, 0); c.stroke();
+    // pitillo
+    c.beginPath(); c.moveTo(cx+4,cy-24); c.lineTo(cx+2,cy+10); c.stroke();
+  };
+
+  cup(-120, -4);
+  shake(120, -4);
+
+  return cv.toDataURL();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const carousel = document.getElementById('hero-carousel');
   const dotsWrap = document.getElementById('hero-dots');
   addHeroSlide(LOCAL_PHOTO, carousel, dotsWrap);
   fetchCarouselSheets(carousel, dotsWrap);
+
+  // Aplica marca de agua al menú
+  createMenuWatermark().then(url => {
+    if (!url) return;
+    const el = document.querySelector('.menu-section');
+    if (el) {
+      el.style.backgroundImage = `url("${url}")`;
+      el.style.backgroundSize = '420px 210px';
+    }
+  });
 });
 
 // Nav transparencia al hacer scroll
