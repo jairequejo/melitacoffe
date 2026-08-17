@@ -5,8 +5,7 @@
 //    • páginas HTML     → Network First (con fallback offline)
 //    • APIs externas    → Network Only
 // ═══════════════════════════════════════════════════════
-
-const CACHE_NAME   = 'melita-coffe-v3';
+const CACHE_NAME   = 'melita-coffe-v4';
 const OFFLINE_URL  = '/offline/';
 
 // Recursos que se pre-cachean al instalar el SW
